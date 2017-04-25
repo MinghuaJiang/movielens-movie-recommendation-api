@@ -64,7 +64,7 @@ def update_dataset():
 
 def init_spark_context():
     # load spark context
-    conf = SparkConf().setAppName("movielens_recommendation").setMaster("172.31.22.90")
+    conf = SparkConf().setAppName("movielens_recommendation").setMaster("spark://spark-master:7077")
     # IMPORTANT: pass additional Python modules to each worker
     sc = SparkContext(conf=conf, pyFiles=['engine.py'])
     return sc
