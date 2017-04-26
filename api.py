@@ -5,6 +5,7 @@ import rate_limit_redis
 from engine import RecommendationEngine
 import json
 from dao import MovieRatingDao
+from dao import MovieInfoDao
 import dataset_updater
 from pyspark import SparkContext, SparkConf
 import api_proxy
@@ -86,6 +87,13 @@ def get_other_comments(user_id, movie_id):
     return json.dumps(result)
 
 
+@api.route("/api/v1/movie_info/<int:movie_id>", methods=["GET"])
+def get_movie_info(movie_id):
+    result = movie_info_dao.get_movie_info(movie_id)
+    result = api_proxy.get_more_movie_info(result)
+    return json.dumps(result)
+
+
 @api.route("/api/v1/model", methods=["GET", "POST"])
 @rate_limit_redis.ratelimit(limit=1, per=60*2)
 def retrain_model():
@@ -118,7 +126,9 @@ if __name__ == '__main__':
     sc = init_spark_context()
     dataset_path = os.path.join('datasets', 'ml-latest-small')
     movie_dao = MovieRatingDao()
-    recommendation_engine = RecommendationEngine(sc, dataset_path, movie_dao.get_user_ratings())
+    movie_info_dao = MovieInfoDao()
+
+    recommendation_engine = RecommendationEngine(sc, dataset_path, movie_dao.get_all_user_ratings())
 
     api.debug = False
     api.run(host="spark-master")
