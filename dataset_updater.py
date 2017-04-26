@@ -2,6 +2,9 @@ import os
 import urllib
 import zipfile
 import filecmp
+from dao import MovieInfoDao
+import numpy as np
+import pandas as pd
 
 
 def update_dataset():
@@ -43,5 +46,20 @@ def download_dataset():
         z.extractall(datasets_path)
 
 
+def refresh_movie_info():
+    movieDao = MovieInfoDao()
+    movieDao.truncate_table()
+    datasets_path = os.path.join('.', 'datasets')
+    small_dataset_path = os.path.join(datasets_path, 'ml-latest-small')
+    movie_file = os.path.join(small_dataset_path, 'movies.csv')
+    link_file = os.path.join(small_dataset_path, 'links.csv')
+    movie = pd.read_csv(movie_file)
+    link = pd.read_csv(link_file, dtype={'movieId': np.int, 'imdbId': np.str, 'tmdbId': np.str})
+    merged = movie.merge(link, on='movieId')
+    for row in merged.iterrows():
+        movieDao.add_movie_info(row[1]['movieId'], row[1]['title'], row[1]['genres'], row[1]['imdbId'], row[1]['tmdbId'])
+    movieDao.bulk_insert()
+
 if __name__ == '__main__':
-    update_dataset()
+    #update_dataset()
+    refresh_movie_info()

@@ -7,7 +7,7 @@ import json
 from dao import MovieRatingDao
 import dataset_updater
 from pyspark import SparkContext, SparkConf
-
+import api_proxy
 
 api = Flask(__name__)
 logger = logging.getLogger(__name__)
@@ -46,8 +46,8 @@ def add_comment_and_rating(user_id, movie_id, rating):
     # movie_id = request.form.movie_id
     # comments = request.form.comment
     # rating = request.form.rating
-    if not dao.check_if_rated(user_id, movie_id):
-        dao.add_comments_rating(user_id, movie_id, "", rating)
+    if not movie_dao.check_if_rated(user_id, movie_id):
+        movie_dao.add_comments_rating(user_id, movie_id, "", rating)
         recommendation_engine.add_rating([(user_id, movie_id, rating)])
         return "added rating successfully"
     else:
@@ -57,7 +57,7 @@ def add_comment_and_rating(user_id, movie_id, rating):
 @api.route("/api/v1/rating/<user_id>", methods=["GET"])
 def get_rated_movie_count(user_id):
     result = dict()
-    result["count"] = dao.get_rated_movie_count(user_id)
+    result["count"] = movie_dao.get_rated_movie_count(user_id)
     return json.dumps(result)
 
 
@@ -70,19 +70,19 @@ def average_rating_count(movie_id):
 @api.route("/api/v1/rating/<user_id>/<int:movie_id>", methods=["GET"])
 def check_rated(user_id, movie_id):
     result = dict()
-    result['rated'] = dao.check_if_rated(user_id, movie_id)
+    result['rated'] = movie_dao.check_if_rated(user_id, movie_id)
     return json.dumps(result)
 
 
 @api.route("/api/v1/comment/<user_id>/<int:movie_id>", methods=["GET"])
 def get_my_comment(user_id, movie_id):
-    result = dao.get_my_comment(user_id, movie_id)
+    result = movie_dao.get_my_comment(user_id, movie_id)
     return json.dumps(result)
 
 
 @api.route("/api/v1/comments/<user_id>/<int:movie_id>", methods=["GET"])
 def get_other_comments(user_id, movie_id):
-    result = dao.get_all_other_comments(user_id, movie_id)
+    result = movie_dao.get_all_other_comments(user_id, movie_id)
     return json.dumps(result)
 
 
@@ -97,7 +97,7 @@ def retrain_model():
 @rate_limit_redis.ratelimit(limit=1, per=60*2)
 def update_dataset():
     if dataset_updater.update_dataset():
-        recommendation_engine.load_dataset(dao.get_all_user_ratings())
+        recommendation_engine.load_dataset(movie_dao.get_all_user_ratings())
         return "dataset updated successfully"
     else:
         return "no changes in dataset"
@@ -117,8 +117,8 @@ if __name__ == '__main__':
 
     sc = init_spark_context()
     dataset_path = os.path.join('datasets', 'ml-latest-small')
-    dao = MovieRatingDao()
-    recommendation_engine = RecommendationEngine(sc, dataset_path, dao.get_user_ratings())
+    movie_dao = MovieRatingDao()
+    recommendation_engine = RecommendationEngine(sc, dataset_path, movie_dao.get_user_ratings())
 
     api.debug = False
     api.run(host="spark-master")

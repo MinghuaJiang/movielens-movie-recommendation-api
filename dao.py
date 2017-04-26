@@ -22,7 +22,7 @@ class MovieRatingDao:
                                   })
 
     def get_all_other_comments(self, user_id, movie_id):
-        db_result = self.db.movie.find_one({'movie_id': movie_id},{'movie_id': 0, '_id': 0})
+        db_result = self.db.movie.find_one({'movie_id': movie_id}, {'movie_id': 0, '_id': 0})
         result = dict()
         result["comments"] = [i for i in db_result["comments"] if i["comment_by"] != user_id]
         result["comments"].reverse()
@@ -51,9 +51,34 @@ class MovieRatingDao:
         result = self.db.movie.find({'comments.comment_by': user_id}).count()
         return result
 
+
+class MovieInfoDao:
+    def __init__(self):
+        self.db = MongoClient('184.73.28.43', 27017)['movie-lens']
+        self.bulk = self.db.movie_info.initialize_ordered_bulk_op()
+
+    def truncate_table(self):
+        self.db.movie_info.remove({})
+
+    def bulk_insert(self):
+        self.bulk.execute()
+
+    def add_movie_info(self, movie_id, movie_title, genres, imdbId, tmdbId, bulk=True):
+        if bulk:
+            self.bulk.insert(
+            {'movie_id': movie_id, 'movie_title': movie_title, 'genres': genres, 'imdbId': imdbId, 'tmdbId': tmdbId})
+        else:
+            self.db.movie_info.insert(
+                {'movie_id': movie_id, 'movie_title': movie_title, 'genres': genres, 'imdbId': imdbId,
+                 'tmdbId': tmdbId})
+
+    def get_tmdbId(self, movie_id):
+        result = self.db.movie_info.find_one({'movie_id': movie_id}, {'tmdbId': 1})
+        return result
+
 if __name__ == '__main__':
     dao = MovieRatingDao()
     # dao.add_comments_rating("ben2", 1, 'test', '5')
-    #dao.add_comments_rating("ben3", 1, 'test4', '4')
-    #dao.get_all_user_ratings()
+    # dao.add_comments_rating("ben3", 1, 'test4', '4')
+    # dao.get_all_user_ratings()
     print dao.check_if_rated('ben3', 1)
