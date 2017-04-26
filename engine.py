@@ -1,10 +1,11 @@
 import os
 
 from pyspark.mllib.recommendation import ALS
-
+from pyspark.storagelevel import StorageLevel
 import logging
 import itertools
 import math
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -33,6 +34,7 @@ class RecommendationEngine:
     def __init_rating_rdd(self, user_ratings):
         ratings_file_path = os.path.join(self.dataset_path, 'ratings.csv')
         ratings_raw_RDD = self.sc.textFile(ratings_file_path)
+        ratings_raw_RDD.persist(StorageLevel.MEMORY_ONLY_2)
         ratings_raw_data_header = ratings_raw_RDD.take(1)[0]
         self.ratings_RDD = ratings_raw_RDD.filter(lambda line: line != ratings_raw_data_header) \
             .map(lambda line: line.split(",")).map(
@@ -45,6 +47,7 @@ class RecommendationEngine:
     def __init_movie_rdd(self):
         movies_file_path = os.path.join(self.dataset_path, 'movies.csv')
         movies_raw_RDD = self.sc.textFile(movies_file_path)
+        movies_raw_RDD.persist(StorageLevel.MEMORY_ONLY_2)
         movies_raw_data_header = movies_raw_RDD.take(1)[0]
         self.movies_RDD = movies_raw_RDD.filter(lambda line: line != movies_raw_data_header) \
             .map(lambda line: line.split(",")).map(lambda tokens: (int(tokens[0]), tokens[1], tokens[2])).cache()
