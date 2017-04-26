@@ -28,10 +28,10 @@ def predict_rating(user_id, movie_id):
 @application.route("/rating/<user_id>/<int:movie_id>/<float:rating>", methods=["GET", "POST"])
 def add_comment_and_rating(user_id, movie_id, rating):
     # get the ratings from the Flask POST request object
-    #user_id = 0
-    #movie_id = request.form.movie_id
-    #comments = request.form.comment
-    #rating = request.form.rating
+    # user_id = 0
+    # movie_id = request.form.movie_id
+    # comments = request.form.comment
+    # rating = request.form.rating
     if not recommendation_engine.check_if_rated(user_id, movie_id):
         dao.add_comments_rating(user_id, movie_id, "", rating)
         recommendation_engine.add_rating([(user_id, movie_id, rating)])
@@ -64,10 +64,12 @@ def update_dataset():
 
 def init_spark_context():
     # load spark context
-    conf = SparkConf().setAppName("movielens_recommendation").setMaster("spark://spark-master:7077")
+    conf = SparkConf().setAppName("movielens_recommendation").setMaster("spark://spark-master:7077").set(
+        "spark.executor.memory", "4g")
     # IMPORTANT: pass additional Python modules to each worker
     sc = SparkContext(conf=conf, pyFiles=['engine.py'])
     return sc
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
@@ -78,5 +80,4 @@ if __name__ == '__main__':
     recommendation_engine = RecommendationEngine(sc, dataset_path, dao.get_user_ratings())
 
     application.debug = False
-    application.run()
-
+    application.run(host="spark-master")
