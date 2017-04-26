@@ -67,9 +67,9 @@ class RecommendationEngine:
         validation_for_predict_RDD = validation_RDD.map(lambda x: (x[0], x[1]))
         test_for_predict_RDD = test_RDD.map(lambda x: (x[0], x[1]))
 
-        ranks = [8, 12]
-        lambdas = [1.0, 10.0]
-        numIters = [10, 20]
+        ranks = [8, 9, 10, 11, 12]
+        lambdas = [1.0, 5.0, 10.0]
+        numIters = [10, 15, 20]
         bestModel = None
         bestValidationRmse = float("inf")
         bestRank = 0
