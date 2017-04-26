@@ -169,10 +169,9 @@ class RecommendationEngine:
                                                                                          key=lambda x: -x[2])
         return ratings
 
-
-    def check_if_rated(self, user_id, movie_id):
-        rating_RDD = self.ratings_RDD.filter(lambda x: x[0] == user_id).filter(lambda x: x[1] == movie_id)
-        return len(rating_RDD.collect()) > 0
+    def get_average_rating_count(self, movie_id):
+        ratings = self.movies_rating_counts_RDD.filter(lambda x: x[0] == movie_id).take(1)
+        return ratings
 
     def load_dataset(self, user_ratings):
         # Load ratings data for later use
