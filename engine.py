@@ -34,11 +34,10 @@ class RecommendationEngine:
     def __init_rating_rdd(self, user_ratings):
         ratings_file_path = os.path.join(self.dataset_path, 'ratings.csv')
         ratings_raw_RDD = self.sc.textFile(ratings_file_path)
-        ratings_raw_RDD.persist(StorageLevel.MEMORY_ONLY_2)
         ratings_raw_data_header = ratings_raw_RDD.take(1)[0]
         self.ratings_RDD = ratings_raw_RDD.filter(lambda line: line != ratings_raw_data_header) \
             .map(lambda line: line.split(",")).map(
-            lambda tokens: (int(tokens[0]), int(tokens[1]), float(tokens[2]))).cache()
+            lambda tokens: (int(tokens[0]), int(tokens[1]), float(tokens[2]))).persist(StorageLevel.MEMORY_ONLY_2)
         if len(user_ratings) > 0:
             new_ratings_RDD = self.sc.parallelize(user_ratings)
             # Add new ratings to the existing ones
@@ -50,8 +49,8 @@ class RecommendationEngine:
         movies_raw_RDD.persist(StorageLevel.MEMORY_ONLY_2)
         movies_raw_data_header = movies_raw_RDD.take(1)[0]
         self.movies_RDD = movies_raw_RDD.filter(lambda line: line != movies_raw_data_header) \
-            .map(lambda line: line.split(",")).map(lambda tokens: (int(tokens[0]), tokens[1], tokens[2])).cache()
-        self.movies_titles_RDD = self.movies_RDD.map(lambda x: (int(x[0]), x[1])).cache()
+            .map(lambda line: line.split(",")).map(lambda tokens: (int(tokens[0]), tokens[1], tokens[2])).persist(StorageLevel.MEMORY_ONLY_2)
+        self.movies_titles_RDD = self.movies_RDD.map(lambda x: (int(x[0]), x[1])).persist(StorageLevel.MEMORY_ONLY_2)
 
     def __count_and_average_ratings(self):
         """Updates the movies ratings counts from
