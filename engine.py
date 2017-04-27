@@ -124,7 +124,7 @@ class RecommendationEngine:
 
     def retrain_model(self):
         logger.info("Re-Training the ALS model for newly added user rating...")
-        self.bestmodel = ALS.train(self.ratings_RDD, self.bestRank, self.bestNumIter, self.bestLambda)
+        self.bestModel = ALS.train(self.ratings_RDD, self.bestRank, self.bestNumIter, self.bestLambda)
         logger.info("ALS model built!")
 
     def add_rating(self, rating):
