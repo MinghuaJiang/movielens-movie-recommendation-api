@@ -39,8 +39,6 @@ class MovieRatingDao:
         for each in db_result:
             for comment in each["comments"]:
                 result.append((comment["comment_by"], each["movie_id"], comment["rating"]))
-
-        print result
         return result
 
     def check_if_rated(self, user_id, movie_id):
