@@ -65,6 +65,7 @@ def get_rated_movie_count(user_id):
 @api.route("/api/v1/rating/average/<int:movie_id>", methods=["GET"])
 def average_rating_count(movie_id):
     top_ratings = recommendation_engine.get_average_rating_count(movie_id)
+    print top_ratings
     result = dict()
     result["movie_id"] = top_ratings[0]
     result["rated_count"] = top_ratings[1][0]
