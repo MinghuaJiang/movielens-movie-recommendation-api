@@ -114,7 +114,7 @@ def update_dataset():
 def init_spark_context():
     # load spark context
     conf = SparkConf().setAppName("movielens_recommendation").setMaster("spark://spark-master:7077").set(
-        "spark.executor.memory", "4g").set("spark.hadoop.fs.defaultFS", "hdfs://spark-master:9000")
+        "spark.executor.memory", "5g").set("spark.hadoop.fs.defaultFS", "hdfs://spark-master:9000")
     # IMPORTANT: pass additional Python modules to each worker
     sc = SparkContext(conf=conf, pyFiles=['engine.py'])
     return sc
