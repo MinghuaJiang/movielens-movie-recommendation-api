@@ -36,7 +36,7 @@ class RecommendationEngine:
         ratings_raw_data_header = ratings_raw_RDD.take(1)[0]
         self.ratings_RDD = ratings_raw_RDD.filter(lambda line: line != ratings_raw_data_header) \
             .map(lambda line: line.split(",")).map(
-            lambda tokens: (tokens[0], int(tokens[1]), float(tokens[2]))).cache()
+            lambda tokens: (int(tokens[0]), int(tokens[1]), float(tokens[2]))).cache()
         if len(user_ratings) > 0:
             new_ratings_RDD = self.sc.parallelize(user_ratings)
             # Add new ratings to the existing ones
@@ -79,7 +79,7 @@ class RecommendationEngine:
         for rank, lmbda, numIter in itertools.product(ranks, lambdas, numIters):
             model = ALS.train(training_RDD, rank, numIter, lmbda)
             predictions = model.predictAll(validation_for_predict_RDD).map(lambda r: ((r[0], r[1]), r[2]))
-            rates_and_preds = validation_RDD.map(lambda r: ((r[0], int(r[1])), float(r[2]))).join(predictions)
+            rates_and_preds = validation_RDD.map(lambda r: ((int(r[0]), int(r[1])), float(r[2]))).join(predictions)
             validationRmse = math.sqrt(rates_and_preds.map(lambda r: (r[1][0] - r[1][1]) ** 2).mean())
             logger.info(
                 "RMSE (validation) = %f for the model trained with rank = %d, lambda = %.1f, and numIter = %d." % (
@@ -93,7 +93,7 @@ class RecommendationEngine:
                 bestNumIter = numIter
 
         predictions = bestModel.predictAll(test_for_predict_RDD).map(lambda r: ((r[0], r[1]), r[2]))
-        rates_and_preds = test_RDD.map(lambda r: ((r[0], int(r[1])), float(r[2]))).join(predictions)
+        rates_and_preds = test_RDD.map(lambda r: ((int(r[0]), int(r[1])), float(r[2]))).join(predictions)
         testRmse = math.sqrt(rates_and_preds.map(lambda r: (r[1][0] - r[1][1]) ** 2).mean())
 
         # evaluate the best model on the test set
