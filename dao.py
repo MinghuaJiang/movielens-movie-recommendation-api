@@ -16,7 +16,7 @@ class MovieRatingDao:
             self.db.movie.update({'movie_id': movie_id},
                                  {'$push': {'comments':
                                                 {'comment': comments, 'rating': rating, 'comment_by': user_id,
-                                                 'comment_time': datetime.datetime.utcnow()
+                                                 'comment_time': datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
                                                  }
                                             }
                                   })
