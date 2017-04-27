@@ -56,8 +56,8 @@ class RecommendationEngine:
         """
         logger.info("Counting movie ratings...")
         movie_ID_with_ratings_RDD = self.ratings_RDD.map(lambda x: (x[1], x[2])).groupByKey()
-        movie_ID_with_avg_ratings_RDD = movie_ID_with_ratings_RDD.map(get_counts_and_averages)
-        self.movies_rating_counts_RDD = movie_ID_with_avg_ratings_RDD.map(lambda x: (x[0], x[1][0]))
+        self.movie_ID_with_avg_ratings_RDD = movie_ID_with_ratings_RDD.map(get_counts_and_averages)
+        self.movies_rating_counts_RDD = self.movie_ID_with_avg_ratings_RDD.map(lambda x: (x[0], x[1][0]))
 
     def __train_model(self):
         """Train the ALS model with the current dataset
@@ -160,17 +160,17 @@ class RecommendationEngine:
         return ratings
 
     def get_top_average_ratings(self, movies_count):
-        ratings = self.movies_rating_counts_RDD.filter(lambda r: r[1] >= 25).takeOrdered(movies_count,
-                                                                                         key=lambda x: -x[2])
+        ratings = self.movies_rating_counts_RDD.filter(lambda r: r[1][0] >= 25).takeOrdered(movies_count,
+                                                                                         key=lambda x: -x[1][1])
         return ratings
 
     def get_most_popular(self, movies_count):
-        ratings = self.movies_rating_counts_RDD.filter(lambda r: r[1] >= 25).takeOrdered(movies_count,
-                                                                                         key=lambda x: -x[2])
+        ratings = self.movies_rating_counts_RDD.filter(lambda r: r[1][0] >= 25).takeOrdered(movies_count,
+                                                                                            key=lambda x: -x[1][1])
         return ratings
 
     def get_average_rating_count(self, movie_id):
-        ratings = self.movies_rating_counts_RDD.filter(lambda x: x[0] == movie_id).take(1)
+        ratings = self.movie_ID_with_avg_ratings_RDD.filter(lambda x: x[0] == movie_id).take(1)
         return ratings
 
     def load_dataset(self, user_ratings):
