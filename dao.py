@@ -71,7 +71,7 @@ class MovieInfoDao:
                  'tmdbId': tmdbId})
 
     def get_movie_info(self, movie_id):
-        result = self.db.movie_info.find_one({'movie_id': movie_id})
+        result = self.db.movie_info.find_one({'movie_id': movie_id},{'_id', 0})
         return result
 
 if __name__ == '__main__':
