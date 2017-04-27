@@ -160,12 +160,12 @@ class RecommendationEngine:
         return ratings
 
     def get_top_average_ratings(self, movies_count):
-        ratings = self.movies_rating_counts_RDD.filter(lambda r: r[1][0] >= 25).takeOrdered(movies_count,
+        ratings = self.movie_ID_with_avg_ratings_RDD.filter(lambda r: r[1][0] >= 25).takeOrdered(movies_count,
                                                                                          key=lambda x: -x[1][1])
         return ratings
 
     def get_most_popular(self, movies_count):
-        ratings = self.movies_rating_counts_RDD.filter(lambda r: r[1][0] >= 25).takeOrdered(movies_count,
+        ratings = self.movie_ID_with_avg_ratings_RDD.filter(lambda r: r[1][0] >= 25).takeOrdered(movies_count,
                                                                                             key=lambda x: -x[1][1])
         return ratings
 
