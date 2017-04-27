@@ -5,7 +5,6 @@ import filecmp
 from dao import MovieInfoDao
 import numpy as np
 import pandas as pd
-from subprocess import call
 
 
 def update_dataset():
@@ -48,7 +47,8 @@ def download_dataset():
     with zipfile.ZipFile(complete_dataset_path, "r") as z:
         z.extractall(datasets_path)
 
-    call("hadoop fs -put datasets")
+    os.system("hadoop fs -rm -r datasets")
+    os.system("hadoop fs -put datasets")
 
 
 def refresh_movie_info():
