@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from subprocess import call
 
+
 def update_dataset():
     datasets_path = os.path.join('.', 'datasets')
     md5_path = os.path.join(datasets_path, 'ml-latest.zip.md5')
@@ -21,10 +22,12 @@ def update_dataset():
         else:
             os.remove(md5_path_bak)
             download_dataset()
+            refresh_movie_info()
             return True
     else:
         urllib.urlretrieve(md5_url, md5_path)
         download_dataset()
+        refresh_movie_info()
         return True
 
 
@@ -47,6 +50,7 @@ def download_dataset():
 
     call("hadoop fs -put datasets")
 
+
 def refresh_movie_info():
     movieDao = MovieInfoDao()
     movieDao.truncate_table()
@@ -62,5 +66,4 @@ def refresh_movie_info():
     movieDao.bulk_insert()
 
 if __name__ == '__main__':
-    #update_dataset()
-    refresh_movie_info()
+    update_dataset()
