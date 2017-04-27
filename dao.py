@@ -64,15 +64,18 @@ class MovieInfoDao:
     def add_movie_info(self, movie_id, movie_title, genres, imdbId, tmdbId, bulk=True):
         if bulk:
             self.bulk.insert(
-            {'movie_id': movie_id, 'movie_title': movie_title, 'genres': genres, 'imdbId': imdbId, 'tmdbId': tmdbId})
+                {'movie_id': movie_id, 'movie_title': movie_title, 'genres': genres, 'imdbId': imdbId,
+                 'tmdbId': tmdbId})
         else:
             self.db.movie_info.insert(
                 {'movie_id': movie_id, 'movie_title': movie_title, 'genres': genres, 'imdbId': imdbId,
                  'tmdbId': tmdbId})
 
     def get_movie_info(self, movie_id):
-        result = self.db.movie_info.find_one({'movie_id': movie_id},{'_id', 0})
+        result = self.db.movie_info.find_one({'movie_id': movie_id}, {'movie_id': 1, 'movie_title': 1, 'genres': 1,
+                                                                      'imdbId': 1, 'tmdbId': 1, '_id': 0})
         return result
+
 
 if __name__ == '__main__':
     dao = MovieRatingDao()
