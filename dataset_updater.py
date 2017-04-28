@@ -62,7 +62,7 @@ def refresh_movie_info():
     link = pd.read_csv(link_file, dtype={'movieId': np.int, 'imdbId': np.str, 'tmdbId': np.str})
     merged = movie.merge(link, on='movieId')
     for row in merged.iterrows():
-        movieDao.add_movie_info(row[1]['movieId'], row[1]['title'], row[1]['genres'], row[1]['imdbId'], row[1]['tmdbId'])
+        movieDao.add_movie_info(row[1]['movieId'], row[1]['title'], row[1]['genres'].split("|"), row[1]['imdbId'], row[1]['tmdbId'])
     movieDao.bulk_insert()
 
 if __name__ == '__main__':
