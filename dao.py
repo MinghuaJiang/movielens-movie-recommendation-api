@@ -76,6 +76,12 @@ class MovieInfoDao:
                                                                       'imdbId': 1, 'tmdbId': 1, '_id': 0})
         return result
 
+    #change this
+    def get_movies_by_genre(self, genre):
+        result = self.db.movie_info.find({'genre': genre}, {'movie_id': 1, 'movie_title': 1, 'genres': 1,
+                                                                      'imdbId': 1, 'tmdbId': 1, '_id': 0})
+        return result
+
 
 if __name__ == '__main__':
     dao = MovieRatingDao()
