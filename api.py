@@ -40,15 +40,10 @@ def predict_rating(user_id, movie_id):
     return json.dumps(ratings)
 
 
-@api.route("/api/v1/rating/<user_id>/<int:movie_id>/<float:rating>", methods=["GET", "POST"])
-def add_comment_and_rating(user_id, movie_id, rating):
-    # get the ratings from the Flask POST request object
-    # user_id = 0
-    # movie_id = request.form.movie_id
-    # comments = request.form.comment
-    # rating = request.form.rating
+@api.route("/api/v1/rating/<user_id>/<int:movie_id>/<comment>/<float:rating>", methods=["GET", "POST"])
+def add_comment_and_rating(user_id, movie_id, comment, rating):
     if not movie_dao.check_if_rated(user_id, movie_id):
-        movie_dao.add_comments_rating(user_id, movie_id, "", rating)
+        movie_dao.add_comments_rating(user_id, movie_id, comment, rating)
         recommendation_engine.add_rating([(user_id, movie_id, rating)])
         return "added rating successfully"
     else:
@@ -62,38 +57,30 @@ def get_rated_movie_count(user_id):
     return json.dumps(result)
 
 
-@api.route("/api/v1/rating/average/<int:movie_id>", methods=["GET"])
-def average_rating_count(movie_id):
+@api.route("/api/v1/movie/<user_id>/<int:movie_id>", methods=["GET"])
+def get_movie_detail(user_id, movie_id):
+    result = movie_info_dao.get_movie_info(movie_id)
+    result = api_proxy.get_more_movie_info(result)
+    result['comment'] = movie_dao.get_my_comment(user_id, movie_id)
+    result['comments'] = movie_dao.get_all_other_comments(user_id, movie_id)
+    result['rated'] = movie_dao.check_if_rated(user_id, movie_id)
     top_ratings = recommendation_engine.get_average_rating_count(movie_id)
-    result = dict()
-    result["movie_id"] = top_ratings[0][0]
     result["rated_count"] = top_ratings[0][1][0]
     result["average_rating"] = top_ratings[0][1][1]
+
     return json.dumps(result)
 
 
-@api.route("/api/v1/rating/<user_id>/<int:movie_id>", methods=["GET"])
-def check_rated(user_id, movie_id):
-    result = dict()
-    result['rated'] = movie_dao.check_if_rated(user_id, movie_id)
+@api.route("/api/v1/movie/<genre>/<int:page_id>", methods=["GET"])
+def get_movies_by_genre(genre, page_id):
+    result = movie_info_dao.get_movies_by_genre(genre, page_id)
+    result = api_proxy.get_more_movie_info(result)
     return json.dumps(result)
 
 
-@api.route("/api/v1/comment/<user_id>/<int:movie_id>", methods=["GET"])
-def get_my_comment(user_id, movie_id):
-    result = movie_dao.get_my_comment(user_id, movie_id)
-    return json.dumps(result)
-
-
-@api.route("/api/v1/comments/<user_id>/<int:movie_id>", methods=["GET"])
-def get_other_comments(user_id, movie_id):
-    result = movie_dao.get_all_other_comments(user_id, movie_id)
-    return json.dumps(result)
-
-
-@api.route("/api/v1/movie_info/<int:movie_id>", methods=["GET"])
-def get_movie_info(movie_id):
-    result = movie_info_dao.get_movie_info(movie_id)
+@api.route("/api/v1/search/<movie>", methods=["GET"])
+def search(movie):
+    result = movie_info_dao.search(movie)
     result = api_proxy.get_more_movie_info(result)
     return json.dumps(result)
 

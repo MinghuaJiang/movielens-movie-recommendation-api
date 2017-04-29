@@ -16,7 +16,8 @@ class MovieRatingDao:
             self.db.movie.update({'movie_id': movie_id},
                                  {'$push': {'comments':
                                                 {'comment': comments, 'rating': rating, 'comment_by': user_id,
-                                                 'comment_time': datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                                                 'comment_time': datetime.datetime.utcnow().strftime(
+                                                     "%Y-%m-%d %H:%M:%S")
                                                  }
                                             }
                                   })
@@ -76,16 +77,20 @@ class MovieInfoDao:
                                                                       'imdbId': 1, 'tmdbId': 1, '_id': 0})
         return result
 
-    #change this
-    def get_movies_by_genre(self, genre):
-        result = self.db.movie_info.find({'genre': genre}, {'movie_id': 1, 'movie_title': 1, 'genres': 1,
-                                                                      'imdbId': 1, 'tmdbId': 1, '_id': 0})
+    # change this
+    def get_movies_by_genre(self, genre, page_id):
+        page_size = 16
+        result = self.db.movie_info.find({'genre': genre}, {'movie_title': 1,
+                                                            'tmdbId': 1, '_id': 0}).skip(
+            page_size * (page_id - 1)).limit(page_size)
         return result
+
+    def search(self, movie):
+        result = self.db.movie_info.find({"$text": {"$search": movie}},
+                                         {'_id': 0, 'movie_title': 1, 'tmdbId': 1}).limit(10)
+        return list(result)
 
 
 if __name__ == '__main__':
-    dao = MovieRatingDao()
-    # dao.add_comments_rating("ben2", 1, 'test', '5')
-    # dao.add_comments_rating("ben3", 1, 'test4', '4')
-    # dao.get_all_user_ratings()
-    print dao.check_if_rated('ben3', 1)
+    dao = MovieInfoDao()
+    dao.search("story")
