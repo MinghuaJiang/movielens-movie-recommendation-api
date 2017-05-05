@@ -4,7 +4,7 @@ import datetime
 
 class MovieRatingDao:
     def __init__(self):
-        self.db = MongoClient('localhost', 27017)['movie-lens']
+        self.db = MongoClient('52.15.119.23', 27017)['movie-lens']
 
     def add_comments_rating(self, user_id, movie_id, comments, rating):
         result = self.db.movie.find_one({'movie_id': movie_id})
@@ -59,7 +59,7 @@ class MovieRatingDao:
 
 class MovieInfoDao:
     def __init__(self):
-        self.db = MongoClient('localhost', 27017)['movie-lens']
+        self.db = MongoClient('52.15.119.23', 27017)['movie-lens']
         self.bulk = self.db.movie_info.initialize_ordered_bulk_op()
 
     def truncate_table(self):

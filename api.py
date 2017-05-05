@@ -106,10 +106,10 @@ def update_dataset():
 
 def init_spark_context():
     # load spark context
-    #conf = SparkConf().setAppName("movielens_recommendation").setMaster("spark://spark-master:7077").set(
-     #   "spark.executor.memory", "5g").set("spark.hadoop.fs.defaultFS", "hdfs://spark-master:9000")
+    conf = SparkConf().setAppName("movielens_recommendation").setMaster("spark://spark-master:7077").set(
+        "spark.executor.memory", "5g").set("spark.hadoop.fs.defaultFS", "hdfs://spark-master:9000")
     # IMPORTANT: pass additional Python modules to each worker
-    conf = SparkConf().setAppName("movielens_recommendation")
+    #conf = SparkConf().setAppName("movielens_recommendation")
     sc = SparkContext(conf=conf, pyFiles=['engine.py'])
     return sc
 
@@ -125,8 +125,8 @@ if __name__ == '__main__':
     recommendation_engine = RecommendationEngine(sc, dataset_path, []) #movie_dao.get_all_user_ratings())
 
     api.debug = False
-    #api.run(host="spark-master", port=5001)
-    api.run(host="localhost", port=5001)
+    api.run(host="spark-master")
+    #api.run(host="localhost", port=5001)
 
 
 
