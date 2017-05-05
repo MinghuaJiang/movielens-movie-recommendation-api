@@ -100,10 +100,10 @@ class MovieInfoDao:
 
 if __name__ == '__main__':
     dao = MovieRatingDao()
-    dao.add_comments_rating('cutehuazai', '1', 'This is a great movie', '4.0')
+    dao.add_comments_rating('minghua', '1', 'This is a great movie', '4.0')
     dao.add_comments_rating('davicier', '1', 'I like it', '5.0')
-    dao.add_comments_rating('cutehuazai', '5', 'I like it', '5.0')
-    dao.add_comments_rating('cutehuazai', '10', 'I like it', '5.0')
-    dao.add_comments_rating('cutehuazai', '12', 'I like it', '5.0')
-    dao.add_comments_rating('cutehuazai', '15', 'I like it', '5.0')
-    dao.add_comments_rating('cutehuazai', '20', 'I like it', '5.0')
+    dao.add_comments_rating('minghua', '5', 'I like it', '5.0')
+    dao.add_comments_rating('minghua', '10', 'I like it', '5.0')
+    dao.add_comments_rating('minghua', '12', 'I like it', '5.0')
+    dao.add_comments_rating('minghua', '15', 'I like it', '5.0')
+    dao.add_comments_rating('minghua', '20', 'I like it', '5.0')

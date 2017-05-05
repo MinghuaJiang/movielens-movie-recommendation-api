@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 @api.route("/api/v1/recommendation/<user_id>/<int:count>", methods=["GET"])
 def top_recommendation(user_id, count):
     logger.debug("User %s TOP ratings requested", user_id)
-    top_ratings = recommendation_engine.get_top_personalized_recommendation(0, count)
+    top_ratings = recommendation_engine.get_top_personalized_recommendation(1, count)
     movies = [api_proxy.get_more_movie_info(movie_info_dao.get_movie_by_title(top_rating[0])) for top_rating in top_ratings]
     return json.dumps(movies)
 
