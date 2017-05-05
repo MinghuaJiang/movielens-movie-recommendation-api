@@ -4,7 +4,7 @@ import datetime
 
 class MovieRatingDao:
     def __init__(self):
-        self.db = MongoClient('184.73.28.43', 27017)['movie-lens']
+        self.db = MongoClient('localhost', 27017)['movie-lens']
 
     def add_comments_rating(self, user_id, movie_id, comments, rating):
         result = self.db.movie.find_one({'movie_id': movie_id})
@@ -25,14 +25,20 @@ class MovieRatingDao:
     def get_all_other_comments(self, user_id, movie_id):
         db_result = self.db.movie.find_one({'movie_id': movie_id}, {'movie_id': 0, '_id': 0})
         result = dict()
-        result["comments"] = [i for i in db_result["comments"] if i["comment_by"] != user_id]
-        result["comments"].reverse()
+        if db_result is not None:
+            result["comments"] = [i for i in db_result["comments"] if i["comment_by"] != user_id]
+            result["comments"].reverse()
+        else:
+            result["comments"] = []
         return result
 
     def get_my_comment(self, user_id, movie_id):
         result = self.db.movie.find_one({'movie_id': movie_id, 'comments.comment_by': user_id},
                                         {'comments.$': 1, '_id': 0})
-        return result["comments"][0]
+        if result is not None:
+            return result["comments"][0]
+        else:
+            return ""
 
     def get_all_user_ratings(self):
         result = []
@@ -53,7 +59,7 @@ class MovieRatingDao:
 
 class MovieInfoDao:
     def __init__(self):
-        self.db = MongoClient('184.73.28.43', 27017)['movie-lens']
+        self.db = MongoClient('localhost', 27017)['movie-lens']
         self.bulk = self.db.movie_info.initialize_ordered_bulk_op()
 
     def truncate_table(self):
@@ -77,20 +83,27 @@ class MovieInfoDao:
                                                                       'imdbId': 1, 'tmdbId': 1, '_id': 0})
         return result
 
-    # change this
     def get_movies_by_genre(self, genre, page_id):
         page_size = 16
-        result = self.db.movie_info.find({'genre': genre}, {'movie_title': 1,
-                                                            'tmdbId': 1, '_id': 0}).skip(
+        result = self.db.movie_info.find({'genres': genre}, {'_id': 0}).skip(
             page_size * (page_id - 1)).limit(page_size)
+        return list(result)
+
+    def get_movie_by_title(self, movie):
+        result = self.db.movie_info.findOne({"movie_title": movie}, {'_id': 0})
         return result
 
     def search(self, movie):
-        result = self.db.movie_info.find({"$text": {"$search": movie}},
-                                         {'_id': 0, 'movie_title': 1, 'tmdbId': 1}).limit(10)
+        result = self.db.movie_info.find({"$text": {"$search": movie}}, {'_id': 0}).limit(10)
         return list(result)
 
 
 if __name__ == '__main__':
-    dao = MovieInfoDao()
-    dao.search("story")
+    dao = MovieRatingDao()
+    dao.add_comments_rating('cutehuazai', '1', 'This is a great movie', '4.0')
+    dao.add_comments_rating('davicier', '1', 'I like it', '5.0')
+    dao.add_comments_rating('cutehuazai', '5', 'I like it', '5.0')
+    dao.add_comments_rating('cutehuazai', '10', 'I like it', '5.0')
+    dao.add_comments_rating('cutehuazai', '12', 'I like it', '5.0')
+    dao.add_comments_rating('cutehuazai', '15', 'I like it', '5.0')
+    dao.add_comments_rating('cutehuazai', '20', 'I like it', '5.0')

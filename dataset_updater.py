@@ -47,8 +47,8 @@ def download_dataset():
     with zipfile.ZipFile(complete_dataset_path, "r") as z:
         z.extractall(datasets_path)
 
-    os.system("hadoop fs -rm -r datasets")
-    os.system("hadoop fs -put datasets")
+    #os.system("hadoop fs -rm -r datasets")
+    #os.system("hadoop fs -put datasets")
 
 
 def refresh_movie_info():
@@ -66,4 +66,4 @@ def refresh_movie_info():
     movieDao.bulk_insert()
 
 if __name__ == '__main__':
-    update_dataset()
+    refresh_movie_info()
