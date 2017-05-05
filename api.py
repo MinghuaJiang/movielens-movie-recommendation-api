@@ -125,7 +125,7 @@ if __name__ == '__main__':
     recommendation_engine = RecommendationEngine(sc, dataset_path, []) #movie_dao.get_all_user_ratings())
 
     api.debug = False
-    api.run(host="spark-master")
+    api.run(host="13.58.38.231")
     #api.run(host="localhost", port=5001)
 
 
